@@ -12,4 +12,9 @@ public class HelloController {
         return "Hello World!";
     }
 
+    @GetMapping("/cc")
+    public String cc() {
+        return "Hello World Con Cac!";
+    }
+
 }
