@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/ThinhND3004/temp_to_deploy.git'
-            }
-        }
+//         stage('Checkout') {
+//             steps {
+//                 git branch: 'main',
+//                     url: 'https://github.com/ThinhND3004/temp_to_deploy.git'
+//             }
+//         }
 
         stage('Build with Maven') {
             steps {
