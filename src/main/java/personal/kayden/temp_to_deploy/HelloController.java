@@ -14,7 +14,7 @@ public class HelloController {
 
     @GetMapping("/cc")
     public String cc() {
-        return "Hello World Con Cac REDEPLOY!";
+        return "Hello World Con Cac REDEPLOY SECOND TIME!";
     }
 
 }
