@@ -8,7 +8,7 @@ pipeline {
         )
         string(
             name: 'BRANCH_NAME',
-            defaultValue: 'develop',
+            defaultValue: 'main',
             description: 'Git branch'
         )
     }
@@ -31,12 +31,12 @@ pipeline {
             }
         }
 
-        stage('Checkout Code') {
-            steps {
-                git branch: "${BRANCH_NAME}",
-                    url: 'https://github.com/ThinhND3004/temp_to_deploy.git'
-            }
-        }
+//         stage('Checkout Code') {
+//             steps {
+//                 git branch: "${BRANCH_NAME}",
+//                     url: 'https://github.com/ThinhND3004/temp_to_deploy.git'
+//             }
+//         }
 
         stage('Build JAR') {
             steps {
