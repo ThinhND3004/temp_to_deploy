@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(
             name: 'BUILD_ID',
-            description: 'Build ID format: YYYYMMDDHHmm (e.g. 202512252118)'
+            description: 'Format yyyyMMddHHmm'
         )
         string(
             name: 'BRANCH_NAME',
@@ -14,9 +14,9 @@ pipeline {
     }
 
     environment {
-        APP_NAME = 'user-service'
-        IMAGE_TAG = "${BUILD_ID}"
-        IMAGE_NAME = "user-service:${IMAGE_TAG}"
+        APP_NAME   = 'user-service'
+        IMAGE_TAG = "${params.BUILD_ID}"
+        IMAGE_NAME = "${APP_NAME}:${IMAGE_TAG}"
     }
 
     stages {
@@ -25,28 +25,29 @@ pipeline {
             steps {
                 script {
                     if (!params.BUILD_ID.matches("\\d{12}")) {
-                        error "BUILD_ID must be in format YYYYMMDDHHmm"
+                        error "BUILD_ID must be yyyyMMddHHmm"
                     }
                 }
             }
         }
 
-//         stage('Checkout Code') {
-//             steps {
-//                 git branch: "${BRANCH_NAME}",
-//                     url: 'https://github.com/ThinhND3004/temp_to_deploy.git'
-//             }
-//         }
-
-        stage('Build JAR') {
-            agent {
-                docker {
-                    image 'maven:3.9.6-eclipse-temurin-17'
-                    args '-v ~/.m2:/root/.m2'
-                }
-            }
+        stage('Checkout Code') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                git branch: params.BRANCH_NAME,
+                    url: 'https://github.com/ThinhND3004/temp_to_deploy.git'
+            }
+        }
+
+        stage('Build JAR (Maven in Docker)') {
+            steps {
+                sh """
+                docker run --rm \
+                  -v "\$PWD":/app \
+                  -v "\$HOME/.m2":/root/.m2 \
+                  -w /app \
+                  maven:3.9.6-eclipse-temurin-17 \
+                  mvn clean package -DskipTests
+                """
             }
         }
 
@@ -62,8 +63,7 @@ pipeline {
             steps {
                 sh """
                 export IMAGE_TAG=${IMAGE_TAG}
-                docker compose down
-                docker compose up -d
+                docker compose up -d ${APP_NAME}
                 """
             }
         }
