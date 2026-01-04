@@ -10,7 +10,7 @@ pipeline {
         string(
             name: 'BRANCH_NAME',
             defaultValue: 'main',
-            description: 'Git branch'
+            description: 'Git branch to deploy'
         )
     }
 
@@ -18,17 +18,30 @@ pipeline {
         APP_NAME = 'user-service'
         IMAGE_TAG = "${params.BUILD_ID}"
         IMAGE_NAME = "${APP_NAME}:${IMAGE_TAG}"
+        GIT_URL = 'https://github.com/ThinhND3004/temp_to_deploy.git'
     }
 
     stages {
 
-        stage('Validate Build ID') {
+        stage('Validate Parameters') {
             steps {
                 script {
                     if (!params.BUILD_ID.matches("\\d{12}")) {
                         error "BUILD_ID must be YYYYMMDDHHmm"
                     }
                 }
+            }
+        }
+
+        stage('Checkout Source') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${params.BRANCH_NAME}"]],
+                    userRemoteConfigs: [[
+                        url: "${GIT_URL}"
+                    ]]
+                ])
             }
         }
 
@@ -61,6 +74,15 @@ pipeline {
                 docker compose up -d
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deploy ${APP_NAME}:${IMAGE_TAG} from branch ${params.BRANCH_NAME} SUCCESS"
+        }
+        failure {
+            echo "❌ Deploy FAILED"
         }
     }
 }
