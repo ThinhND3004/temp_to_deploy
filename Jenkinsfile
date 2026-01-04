@@ -1,17 +1,13 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     parameters {
-        string(
-            name: 'BUILD_ID',
-            defaultValue: '',
-            description: 'Format YYYYMMDDHHmm'
-        )
-        string(
-            name: 'BRANCH_NAME',
-            defaultValue: 'main',
-            description: 'Git branch to deploy'
-        )
+        string(name: 'BUILD_ID', defaultValue: '', description: 'YYYYMMDDHHmm')
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch')
     }
 
     environment {
@@ -38,9 +34,7 @@ pipeline {
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: "*/${params.BRANCH_NAME}"]],
-                    userRemoteConfigs: [[
-                        url: "${GIT_URL}"
-                    ]]
+                    userRemoteConfigs: [[url: "${GIT_URL}"]]
                 ])
             }
         }
@@ -60,9 +54,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                docker build -t $IMAGE_NAME .
-                '''
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
@@ -74,15 +66,6 @@ pipeline {
                 docker compose up -d
                 '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Deploy ${APP_NAME}:${IMAGE_TAG} from branch ${params.BRANCH_NAME} SUCCESS"
-        }
-        failure {
-            echo "❌ Deploy FAILED"
         }
     }
 }
