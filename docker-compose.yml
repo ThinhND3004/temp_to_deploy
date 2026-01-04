@@ -1,18 +1,17 @@
-version: "3.8"
+version: "3.9"
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:14
+    container_name: postgres
+    ports:
+      - "15432:5432"
     environment:
-      POSTGRES_DB: demo
-      POSTGRES_USER: demo
-      POSTGRES_PASSWORD: demo
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: flywya_db_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - pg_data:/var/lib/postgresql/data
 
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
+volumes:
+  pg_data:
